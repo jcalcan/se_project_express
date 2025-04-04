@@ -8,6 +8,13 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: "67ecae9882f4e36adf710e93",
+  };
+  next();
+});
+
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
 
