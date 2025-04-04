@@ -1,7 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
-const auth = require("./middlewares/auth");
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -11,6 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
+
 app.use((req, res) => {
   res.status(404).json({
     message: "Requested resource not found",

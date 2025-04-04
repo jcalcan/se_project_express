@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+
 const { ObjectId } = mongoose.Schema.Types;
 
-const User = require("./user.js");
+const User = require("./user");
 
 const clothingItem = new mongoose.Schema({
   name: {
@@ -28,13 +29,13 @@ const clothingItem = new mongoose.Schema({
   },
   owner: {
     type: ObjectId,
-    ref: "User",
+    ref: User,
     required: true,
   },
   likes: [
     {
       type: ObjectId,
-      ref: "User",
+      ref: User,
     },
   ],
   createdAt: {

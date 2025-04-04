@@ -1,5 +1,6 @@
-const ClothingItem = require("../models/clothingItem");
 const { ObjectId } = require("mongoose").Types;
+const ClothingItem = require("../models/clothingItem");
+
 const {
   BAD_REQUEST,
   NOT_FOUND,
@@ -10,12 +11,10 @@ const {
   DEFAULT_ERROR_MESSAGE,
   INVALID_NAME_AVATAR_MESSAGE,
   NAME_LENGTH_MESSAGE,
-  INVALID_PHOTO_TYPE,
   ITEM_NOT_FOUND_MESSAGE,
   ITEM_DELETED_MESSAGE,
   ITEM_DELETE_FAIL_MESSAGE,
   INVALID_WEATHER_MESSAGE,
-  ITEM_CREATED_MESSAGE,
   WEATHER_NAME_TYPE_INCORRECT_MESSAGE,
   AUTHENTICATION_FAIL_MESSAGE,
   INVALID_URL_MESSAGE,
@@ -42,9 +41,9 @@ const createItem = async (req, res) => {
     });
   }
   if (
-    req.body.name.trim() == "" ||
-    req.body.weather.trim() == "" ||
-    req.body.imageUrl.trim() == ""
+    req.body.name.trim() === "" ||
+    req.body.weather.trim() === "" ||
+    req.body.imageUrl.trim() === ""
   ) {
     return res.status(BAD_REQUEST).json({
       message: WEATHER_NAME_TYPE_INCORRECT_MESSAGE,
@@ -63,7 +62,11 @@ const createItem = async (req, res) => {
   }
 
   try {
-    new URL(req.body.imageUrl);
+    if (!URL.canParse(req.body.imageUrl)) {
+      return res.status(BAD_REQUEST).json({
+        message: INVALID_URL_MESSAGE,
+      });
+    }
 
     if (!req.user) {
       return res.status(BAD_REQUEST).json({
@@ -110,7 +113,6 @@ const deleteItem = async (req, res) => {
 const likeItem = async (req, res) => {
   const { itemId } = req.params;
 
-  //Validate itemId format
   if (!ObjectId.isValid(itemId)) {
     return res.status(BAD_REQUEST).json({
       message: BAD_REQUEST_ERROR_MESSAGE,
@@ -122,7 +124,7 @@ const likeItem = async (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true }
     ).orFail();
-    res.status(OK).json(item);
+    return res.status(OK).json(item);
   } catch (error) {
     if (error.name === "DocumentNotFoundError") {
       return res.status(NOT_FOUND).json({
@@ -138,7 +140,6 @@ const likeItem = async (req, res) => {
 const unlikeItem = async (req, res) => {
   const { itemId } = req.params;
 
-  //validate itemId format
   if (!ObjectId.isValid(itemId)) {
     return res.status(BAD_REQUEST).json({
       message: BAD_REQUEST_ERROR_MESSAGE,
@@ -150,7 +151,7 @@ const unlikeItem = async (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true }
     ).orFail();
-    res.status(OK).json(item);
+    return res.status(OK).json(item);
   } catch (error) {
     if (error.name === "DocumentNotFoundError") {
       return res.status(NOT_FOUND).json({
