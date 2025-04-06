@@ -27,7 +27,6 @@ const getItems = async (req, res) => {
   } catch (err) {
     res.status(INTERNAL_SERVER_ERROR).json({
       message: DEFAULT_ERROR_MESSAGE,
-      error: err.message,
     });
   }
 };
@@ -35,11 +34,6 @@ const getItems = async (req, res) => {
 const createItem = async (req, res) => {
   const validWeatherTypes = ["hot", "warm", "cold"];
 
-  if (!req.body.name || !req.body.weather || !req.body.imageUrl) {
-    return res.status(BAD_REQUEST).json({
-      message: INVALID_NAME_AVATAR_MESSAGE,
-    });
-  }
   if (
     req.body.name.trim() === "" ||
     req.body.weather.trim() === "" ||
@@ -82,8 +76,13 @@ const createItem = async (req, res) => {
 
     return res.status(CREATED).json(item);
   } catch (err) {
-    return res.status(BAD_REQUEST).json({
-      message: INVALID_URL_MESSAGE,
+    if (err.name === "ValidationError") {
+      return res.status(BAD_REQUEST).json({
+        message: INVALID_URL_MESSAGE,
+      });
+    }
+    return res.status(INTERNAL_SERVER_ERROR).json({
+      message: DEFAULT_ERROR_MESSAGE,
     });
   }
 };

@@ -23,7 +23,6 @@ const getAllUsers = (req, res) => {
       console.log(err.name);
       return res.status(INTERNAL_SERVER_ERROR).json({
         message: DEFAULT_ERROR_MESSAGE,
-        error: err.message,
       });
     });
 };
@@ -47,17 +46,11 @@ const getUser = (req, res) => {
       }
       return res.status(INTERNAL_SERVER_ERROR).json({
         message: DEFAULT_ERROR_MESSAGE,
-        error: err.message,
       });
     });
 };
 
 const createUser = (req, res) => {
-  if (!req.body.name || !req.body.avatar) {
-    return res.status(BAD_REQUEST).json({
-      message: INVALID_NAME_AVATAR_MESSAGE,
-    });
-  }
   if (req.body.name.trim() === "" || req.body.avatar.trim() === "") {
     return res.status(BAD_REQUEST).json({
       message: EMPTY_NAME_AVATAR_MESSAGE,
@@ -87,12 +80,16 @@ const createUser = (req, res) => {
         console.log(err.name);
         return res.status(INTERNAL_SERVER_ERROR).json({
           message: DB_CREATE_ERROR_MESSAGE,
-          error: err.message,
         });
       });
   } catch (err) {
-    return res.status(BAD_REQUEST).json({
-      message: INVALID_URL_MESSAGE,
+    if (err.name === "ValidationError") {
+      return res.status(BAD_REQUEST).json({
+        message: INVALID_URL_MESSAGE,
+      });
+    }
+    return res.status(INTERNAL_SERVER_ERROR).json({
+      message: DEFAULT_ERROR_MESSAGE,
     });
   }
 };
