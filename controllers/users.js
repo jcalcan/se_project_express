@@ -8,9 +8,6 @@ const {
   BAD_REQUEST_ERROR_MESSAGE,
   NOT_FOUND_ERROR_MESSAGE,
   DEFAULT_ERROR_MESSAGE,
-  INVALID_NAME_AVATAR_MESSAGE,
-  EMPTY_NAME_AVATAR_MESSAGE,
-  NAME_LENGTH_MESSAGE,
   INVALID_AVATAR_URL_MESSAGE,
   INVALID_URL_MESSAGE,
   DB_CREATE_ERROR_MESSAGE,
@@ -51,17 +48,6 @@ const getUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  if (req.body.name.trim() === "" || req.body.avatar.trim() === "") {
-    return res.status(BAD_REQUEST).json({
-      message: EMPTY_NAME_AVATAR_MESSAGE,
-    });
-  }
-
-  if (req.body.name.length < 2 || req.body.name.length > 30) {
-    return res.status(BAD_REQUEST).json({
-      message: NAME_LENGTH_MESSAGE,
-    });
-  }
   try {
     if (!URL.canParse(req.body.avatar)) {
       return res.status(BAD_REQUEST).json({

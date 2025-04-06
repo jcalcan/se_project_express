@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
-const { NOT_FOUND } = require("../utils/errors");
+const { NOT_FOUND } = require("./utils/errors");
 
 const { PORT = 3001 } = process.env;
 const app = express();

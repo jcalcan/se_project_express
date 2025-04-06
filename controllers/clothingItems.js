@@ -9,13 +9,9 @@ const {
   OK,
   BAD_REQUEST_ERROR_MESSAGE,
   DEFAULT_ERROR_MESSAGE,
-  INVALID_NAME_AVATAR_MESSAGE,
-  NAME_LENGTH_MESSAGE,
   ITEM_NOT_FOUND_MESSAGE,
   ITEM_DELETED_MESSAGE,
   ITEM_DELETE_FAIL_MESSAGE,
-  INVALID_WEATHER_MESSAGE,
-  WEATHER_NAME_TYPE_INCORRECT_MESSAGE,
   AUTHENTICATION_FAIL_MESSAGE,
   INVALID_URL_MESSAGE,
 } = require("../utils/errors");
@@ -32,29 +28,6 @@ const getItems = async (req, res) => {
 };
 
 const createItem = async (req, res) => {
-  const validWeatherTypes = ["hot", "warm", "cold"];
-
-  if (
-    req.body.name.trim() === "" ||
-    req.body.weather.trim() === "" ||
-    req.body.imageUrl.trim() === ""
-  ) {
-    return res.status(BAD_REQUEST).json({
-      message: WEATHER_NAME_TYPE_INCORRECT_MESSAGE,
-    });
-  }
-
-  if (req.body.name.length < 2 || req.body.name.length > 30) {
-    return res.status(BAD_REQUEST).json({
-      message: NAME_LENGTH_MESSAGE,
-    });
-  }
-  if (!validWeatherTypes.includes(req.body.weather)) {
-    return res.status(BAD_REQUEST).json({
-      message: INVALID_WEATHER_MESSAGE,
-    });
-  }
-
   try {
     if (!URL.canParse(req.body.imageUrl)) {
       return res.status(BAD_REQUEST).json({
