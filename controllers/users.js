@@ -6,13 +6,11 @@ const { JWT_SECRET } = require("../utils/config");
 const {
   UNAUTHORIZED,
   NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
   CONFLICT,
   BAD_REQUEST_ERROR_MESSAGE,
   NOT_FOUND_ERROR_MESSAGE,
-  DEFAULT_ERROR_MESSAGE,
   INVALID_AVATAR_URL_MESSAGE,
   INVALID_URL_MESSAGE,
   AUTHENTICATION_FAIL_MESSAGE,
@@ -22,17 +20,6 @@ const {
   USER_UPDATED,
   BadRequestError,
 } = require("../utils/errors");
-
-const getAllUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.status(OK).json({ data: users }))
-    .catch((err) => {
-      console.log(err.name);
-      return res.status(INTERNAL_SERVER_ERROR).json({
-        message: DEFAULT_ERROR_MESSAGE,
-      });
-    });
-};
 
 const createUser = async (req, res, next) => {
   try {
@@ -146,12 +133,15 @@ const updateUser = async (req, res, next) => {
 
     return res.status(OK).json({ data: user, message: USER_UPDATED });
   } catch (err) {
+    if (err.name === "ValidationError") {
+      const error = new BadRequestError("Invalid data passed for user update");
+      return next(error);
+    }
     return next(err);
   }
 };
 
 module.exports = {
-  getAllUsers,
   createUser,
   login,
   getCurrentUser,

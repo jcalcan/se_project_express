@@ -64,19 +64,25 @@ const createItem = async (req, res) => {
 
 const deleteItem = async (req, res) => {
   const { itemId } = req.params;
-
-  const item = await ClothingItem.findById(itemId);
-  if (!item || !item.owner.equals(req.user._id)) {
-    return res
-      .status(FORBIDDEN)
-      .json({ message: INVALID_AUTHENTICATION_MESSAGE });
-  }
-
-  if (!ObjectId.isValid(itemId)) {
-    return res.status(BAD_REQUEST).json({ message: BAD_REQUEST_ERROR_MESSAGE });
-  }
-
   try {
+    if (!ObjectId.isValid(itemId)) {
+      return res
+        .status(BAD_REQUEST)
+        .json({ message: BAD_REQUEST_ERROR_MESSAGE });
+    }
+
+    const item = await ClothingItem.findById(itemId);
+
+    if (!item) {
+      return res.status(NOT_FOUND).json({ message: ITEM_NOT_FOUND_MESSAGE });
+    }
+
+    if (!item.owner.equals(req.user._id)) {
+      return res
+        .status(FORBIDDEN)
+        .json({ message: INVALID_AUTHENTICATION_MESSAGE });
+    }
+
     const deletedItem = await ClothingItem.findByIdAndDelete(itemId);
     if (!deletedItem) {
       return res.status(NOT_FOUND).json({ message: ITEM_NOT_FOUND_MESSAGE });
