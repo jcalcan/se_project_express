@@ -21,6 +21,7 @@ app.use(cors(corsOptions));
 
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
+
 app.post("/signin", login);
 app.post("/signup", createUser);
 
@@ -30,7 +31,8 @@ app.use((req, res) => {
   });
 });
 
-app.use((err, req, res, next) => {
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, _next) => {
   console.log(err);
   if (err.statusCode) {
     return res.status(err.statusCode).json({

@@ -1,6 +1,6 @@
-const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
 
 const {
@@ -21,7 +21,6 @@ const {
   USER_CREATED,
   USER_UPDATED,
   BadRequestError,
-  INVALID_EMAIL_MESSAGE,
 } = require("../utils/errors");
 
 const getAllUsers = (req, res) => {
@@ -65,7 +64,7 @@ const createUser = async (req, res, next) => {
       password: hash,
     });
 
-    return res.status(CREATED).json({ data: req.body, message: USER_CREATED });
+    return res.status(CREATED).json({ data: user, message: USER_CREATED });
   } catch (err) {
     if (err.name === "ValidationError") {
       const error = new BadRequestError(err.message);
@@ -147,7 +146,7 @@ const updateUser = async (req, res, next) => {
 
     return res.status(OK).json({ data: user, message: USER_UPDATED });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 
