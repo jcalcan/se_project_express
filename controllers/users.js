@@ -4,19 +4,24 @@ const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
 
 const {
-  BAD_REQUEST,
   UNAUTHORIZED,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
+  CONFLICT,
   BAD_REQUEST_ERROR_MESSAGE,
   NOT_FOUND_ERROR_MESSAGE,
   DEFAULT_ERROR_MESSAGE,
   INVALID_AVATAR_URL_MESSAGE,
   INVALID_URL_MESSAGE,
-  DB_CREATE_ERROR_MESSAGE,
   AUTHENTICATION_FAIL_MESSAGE,
+  INVALID_FIELDS_PROVIDED_FAIL_MESSAGE,
+  DUPLICATE_EMAIL_CONFLICT_MESSAGE,
+  USER_CREATED,
+  USER_UPDATED,
+  BadRequestError,
+  INVALID_EMAIL_MESSAGE,
 } = require("../utils/errors");
 
 const getAllUsers = (req, res) => {
@@ -30,40 +35,25 @@ const getAllUsers = (req, res) => {
     });
 };
 
-const getUser = (req, res) => {
-  User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        return res.status(NOT_FOUND).json({
-          message: NOT_FOUND_ERROR_MESSAGE,
-        });
-      }
-      return res.status(OK).json({ data: user });
-    })
-    .catch((err) => {
-      console.log(err.name);
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).json({
-          message: BAD_REQUEST_ERROR_MESSAGE,
-        });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).json({
-        message: DEFAULT_ERROR_MESSAGE,
-      });
-    });
-};
-
 const createUser = async (req, res, next) => {
   try {
     const { name, avatar, email, password } = req.body;
 
     if (!avatar) {
-      throw new BAD_REQUEST("Avatar URL is required");
+      throw new BadRequestError("Avatar URL is required");
     }
 
-    const urlRegex = /^https?:\/\/.+\.(jpg|jpeg|png|gif)$/i;
+    const urlRegex = /^https?:\/\/\S+$/i;
     if (!urlRegex.test(avatar)) {
-      throw new BAD_REQUEST("Avatar must be a valid image URL");
+      throw new BadRequestError(INVALID_URL_MESSAGE);
+    }
+
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res
+        .status(CONFLICT)
+        .json({ message: DUPLICATE_EMAIL_CONFLICT_MESSAGE, data: null });
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -75,14 +65,23 @@ const createUser = async (req, res, next) => {
       password: hash,
     });
 
-    res.status(CREATED).json({ data: user });
+    return res.status(CREATED).json({ data: req.body, message: USER_CREATED });
   } catch (err) {
-    next(err);
+    if (err.name === "ValidationError") {
+      const error = new BadRequestError(err.message);
+      return next(error);
+    }
+    return next(err);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    const err = new BadRequestError("Email and password are required");
+    return next(err);
+  }
 
   try {
     const user = await User.findUserByCredentials(email, password);
@@ -90,17 +89,72 @@ const login = async (req, res) => {
       expiresIn: "7d",
     });
 
-    return res.status(OK).json({ data: avatar, email, token });
-  } catch (err) {
-    return res.status(UNAUTHORIZED).json({
-      message: AUTHENTICATION_FAIL_MESSAGE,
+    return res.status(OK).json({
+      data: { avatar: user.avatar, email: user.email, token },
+      message: "Login successful",
     });
+  } catch (err) {
+    err.statusCode = UNAUTHORIZED;
+    err.message = AUTHENTICATION_FAIL_MESSAGE;
+    return next(err);
+  }
+};
+
+const getCurrentUser = (req, res, next) => {
+  const userId = req.user._id;
+
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        return res.status(NOT_FOUND).json({
+          message: NOT_FOUND_ERROR_MESSAGE,
+        });
+      }
+      return res
+        .status(OK)
+        .json({ data: user, message: "Current user retrieved successfully" });
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return next(new BadRequestError(BAD_REQUEST_ERROR_MESSAGE));
+      }
+      return next(err);
+    });
+};
+
+const updateUser = async (req, res, next) => {
+  try {
+    const { name, avatar } = req.body;
+
+    const updates = {};
+    if (name) updates.name = name;
+    if (avatar) {
+      const urlRegex = /^https?:\/\/\S+$/i;
+      if (!urlRegex.test(avatar)) {
+        throw new BadRequestError(INVALID_AVATAR_URL_MESSAGE);
+      }
+      updates.avatar = avatar;
+    }
+
+    if (Object.keys(updates).length === 0) {
+      throw new BadRequestError(INVALID_FIELDS_PROVIDED_FAIL_MESSAGE);
+    }
+
+    const user = await User.findByIdAndUpdate(req.user._id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    return res.status(OK).json({ data: user, message: USER_UPDATED });
+  } catch (err) {
+    next(err);
   }
 };
 
 module.exports = {
   getAllUsers,
-  getUser,
   createUser,
   login,
+  getCurrentUser,
+  updateUser,
 };

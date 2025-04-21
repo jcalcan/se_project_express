@@ -1,7 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+
 require("dotenv").config();
-const { NOT_FOUND } = require("./utils/errors");
+const { login, createUser } = require("./controllers/users");
+const { corsOptions } = require("./utils/config");
+const {
+  NOT_FOUND,
+  INTERNAL_SERVER_ERROR,
+  DEFAULT_ERROR_MESSAGE,
+} = require("./utils/errors");
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -9,20 +17,27 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "67ecae9882f4e36adf710e93",
-  };
-  next();
-});
+app.use(cors(corsOptions));
 
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
+app.post("/signin", login);
+app.post("/signup", createUser);
 
 app.use((req, res) => {
   res.status(NOT_FOUND).json({
     message: "Requested resource not found",
   });
+});
+
+app.use((err, req, res, next) => {
+  console.log(err);
+  if (err.statusCode) {
+    return res.status(err.statusCode).json({
+      message: err.message,
+    });
+  }
+  return res.status(INTERNAL_SERVER_ERROR).json({ msg: DEFAULT_ERROR_MESSAGE });
 });
 
 mongoose

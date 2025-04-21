@@ -4,6 +4,7 @@ const ClothingItem = require("../models/clothingItem");
 const {
   BAD_REQUEST,
   NOT_FOUND,
+  FORBIDDEN,
   INTERNAL_SERVER_ERROR,
   CREATED,
   OK,
@@ -14,6 +15,7 @@ const {
   ITEM_DELETE_FAIL_MESSAGE,
   AUTHENTICATION_FAIL_MESSAGE,
   INVALID_URL_MESSAGE,
+  INVALID_AUTHENTICATION_MESSAGE,
 } = require("../utils/errors");
 
 const getItems = async (req, res) => {
@@ -62,6 +64,13 @@ const createItem = async (req, res) => {
 
 const deleteItem = async (req, res) => {
   const { itemId } = req.params;
+
+  const item = await ClothingItem.findById(itemId);
+  if (!item || !item.owner.equals(req.user._id)) {
+    return res
+      .status(FORBIDDEN)
+      .json({ message: INVALID_AUTHENTICATION_MESSAGE });
+  }
 
   if (!ObjectId.isValid(itemId)) {
     return res.status(BAD_REQUEST).json({ message: BAD_REQUEST_ERROR_MESSAGE });
