@@ -51,6 +51,8 @@ const createUser = async (req, res, next) => {
       password: hash,
     });
 
+    delete user._doc.password;
+
     return res.status(CREATED).json({ data: user, message: USER_CREATED });
   } catch (err) {
     if (err.name === "ValidationError") {
