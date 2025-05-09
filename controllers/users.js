@@ -4,42 +4,38 @@ const User = require("../models/user");
 const { JWT_SECRET } = require("../utils/config");
 
 const {
-  UNAUTHORIZED,
-  NOT_FOUND,
   CREATED,
   OK,
-  CONFLICT,
   BAD_REQUEST_ERROR_MESSAGE,
   NOT_FOUND_ERROR_MESSAGE,
   INVALID_AVATAR_URL_MESSAGE,
   INVALID_URL_MESSAGE,
-  AUTHENTICATION_FAIL_MESSAGE,
   INVALID_FIELDS_PROVIDED_FAIL_MESSAGE,
   DUPLICATE_EMAIL_CONFLICT_MESSAGE,
   USER_CREATED,
   USER_UPDATED,
+  UnauthorizedError,
+  ConflictError,
   BadRequestError,
+  NotFoundError,
 } = require("../utils/errors");
-
+const { isValidUrl } = require("../utils/validation");
 const createUser = async (req, res, next) => {
   try {
     const { name, avatar, email, password } = req.body;
 
     if (!avatar) {
-      throw new BadRequestError("Avatar URL is required");
+      return next(new BadRequestError(INVALID_AVATAR_URL_MESSAGE));
     }
 
-    const urlRegex = /^https?:\/\/\S+$/i;
-    if (!urlRegex.test(avatar)) {
-      throw new BadRequestError(INVALID_URL_MESSAGE);
+    if (!isValidUrl(avatar)) {
+      return next(new BadRequestError(INVALID_URL_MESSAGE));
     }
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res
-        .status(CONFLICT)
-        .json({ message: DUPLICATE_EMAIL_CONFLICT_MESSAGE, data: null });
+      return next(new ConflictError(DUPLICATE_EMAIL_CONFLICT_MESSAGE));
     }
 
     const hash = await bcrypt.hash(password, 10);
@@ -55,11 +51,7 @@ const createUser = async (req, res, next) => {
 
     return res.status(CREATED).json({ data: user, message: USER_CREATED });
   } catch (err) {
-    if (err.name === "ValidationError") {
-      const error = new BadRequestError(err.message);
-      return next(error);
-    }
-    return next(err);
+    return next(new BadRequestError(err.message));
   }
 };
 
@@ -67,8 +59,7 @@ const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    const err = new BadRequestError("Email and password are required");
-    return next(err);
+    return next(new BadRequestError("Email and password are required"));
   }
 
   try {
@@ -82,32 +73,29 @@ const login = async (req, res, next) => {
       message: "Login successful",
     });
   } catch (err) {
-    err.statusCode = UNAUTHORIZED;
-    err.message = AUTHENTICATION_FAIL_MESSAGE;
-    return next(err);
+    return next(new UnauthorizedError(err.message));
   }
 };
 
-const getCurrentUser = (req, res, next) => {
+const getCurrentUser = async (req, res, next) => {
   const userId = req.user._id;
 
-  User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        return res.status(NOT_FOUND).json({
-          message: NOT_FOUND_ERROR_MESSAGE,
-        });
-      }
-      return res
-        .status(OK)
-        .json({ data: user, message: "Current user retrieved successfully" });
-    })
-    .catch((err) => {
-      if (err.name === "CastError") {
-        return next(new BadRequestError(BAD_REQUEST_ERROR_MESSAGE));
-      }
-      return next(err);
-    });
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
+    }
+
+    return res
+      .status(OK)
+      .json({ data: user, message: "Current user retrieved successfully" });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return next(new BadRequestError(BAD_REQUEST_ERROR_MESSAGE));
+    }
+    return next(err);
+  }
 };
 
 const updateUser = async (req, res, next) => {
@@ -117,15 +105,14 @@ const updateUser = async (req, res, next) => {
     const updates = {};
     if (name) updates.name = name;
     if (avatar) {
-      const urlRegex = /^https?:\/\/\S+$/i;
-      if (!urlRegex.test(avatar)) {
-        throw new BadRequestError(INVALID_AVATAR_URL_MESSAGE);
+      if (avatar && !isValidUrl(avatar)) {
+        return next(new BadRequestError(INVALID_AVATAR_URL_MESSAGE));
       }
       updates.avatar = avatar;
     }
 
     if (Object.keys(updates).length === 0) {
-      throw new BadRequestError(INVALID_FIELDS_PROVIDED_FAIL_MESSAGE);
+      return next(new BadRequestError(INVALID_FIELDS_PROVIDED_FAIL_MESSAGE));
     }
 
     const user = await User.findByIdAndUpdate(req.user._id, updates, {
@@ -136,8 +123,7 @@ const updateUser = async (req, res, next) => {
     return res.status(OK).json({ data: user, message: USER_UPDATED });
   } catch (err) {
     if (err.name === "ValidationError") {
-      const error = new BadRequestError("Invalid data passed for user update");
-      return next(error);
+      return next(new BadRequestError("Invalid data passed for user update"));
     }
     return next(err);
   }

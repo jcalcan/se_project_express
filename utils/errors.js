@@ -14,7 +14,8 @@ const INVALID_NAME_AVATAR_MESSAGE = "Please enter a valid name and avatar.";
 const EMPTY_NAME_AVATAR_MESSAGE =
   "Name and Avatar cannot be empty. Please re-enter.";
 const NAME_LENGTH_MESSAGE = "Name length must be between 2 and 30 characters";
-const INVALID_AVATAR_URL_MESSAGE = "Avatar URL must end with .jpg, .png, .bmp";
+const INVALID_AVATAR_URL_MESSAGE =
+  "Avatar URL invlaid or must end with .jpg, .png, .bmp";
 const INVALID_URL_MESSAGE = "Please enter a valid URL";
 const INVALID_EMAIL_MESSAGE = "Please enter a valid EMAIL";
 const DB_CREATE_ERROR_MESSAGE = "Failed to create User in Database.";
@@ -45,6 +46,38 @@ class BadRequestError extends Error {
   }
 }
 
+class UnauthorizedError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = UNAUTHORIZED;
+    this.name = "UnauthorizedError";
+  }
+}
+
+class ForbiddenError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = FORBIDDEN;
+    this.name = "ForbiddenError";
+  }
+}
+
+class NotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = NOT_FOUND;
+    this.name = "NotFoundError";
+  }
+}
+
+class ConflictError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = CONFLICT;
+    this.name = "ConflictError";
+  }
+}
+
 module.exports = {
   BAD_REQUEST,
   UNAUTHORIZED,
@@ -55,6 +88,10 @@ module.exports = {
   OK,
   CONFLICT,
   BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
   USER_CREATED,
   USER_UPDATED,
   BAD_REQUEST_ERROR_MESSAGE,
