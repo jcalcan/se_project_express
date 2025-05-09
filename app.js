@@ -23,22 +23,13 @@ app.post("/signin", login);
 app.post("/signup", createUser);
 
 app.use((req, res, next) => {
-  // res.status(NOT_FOUND).json({
-  //   message: "Requested resource not found",
-  // });
   return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
 });
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.log(err);
-  // if (err.statusCode) {
-  // return res.status(err.statusCode).json({
-  //   message: err.message,
-  // });
 
-  // }
-  // return res.status(INTERNAL_SERVER_ERROR).json({ msg: DEFAULT_ERROR_MESSAGE });
   if (!err.statusCode) {
     // Set default status code for unexpected errors
     err.statusCode = 500;

@@ -1,4 +1,4 @@
-const JWT_SECRET = "some-secret-key";
+const { JWT_SECRET = "some-secret-key" } = process.env;
 
 const corsOptions = {
   origin: [
