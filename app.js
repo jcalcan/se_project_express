@@ -11,10 +11,9 @@ const { NOT_FOUND_ERROR_MESSAGE, NotFoundError } = require("./utils/errors");
 const { PORT = 3001 } = process.env;
 const app = express();
 
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-app.use(cors(corsOptions));
 
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
