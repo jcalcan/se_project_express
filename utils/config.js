@@ -5,7 +5,7 @@ const corsOptions = {
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:4173",
-    "https://jcalcan.github.io",
+    "https://whattowear.mine.bz",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
