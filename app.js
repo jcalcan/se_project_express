@@ -2,11 +2,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const errorHandler = require("./middlewares/error-handler");
+const { requestLogger, errorLogger } = require("./utils/logger");
 
 require("dotenv").config();
 const { login, createUser } = require("./controllers/users");
 const { corsOptions } = require("./utils/config");
 const { NOT_FOUND_ERROR_MESSAGE, NotFoundError } = require("./utils/errors");
+const { errors } = require("celebrate");
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -14,9 +16,16 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(requestLogger);
 
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
+
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 
 app.post("/signin", login);
 app.post("/signup", createUser);
@@ -35,6 +44,8 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
+app.use(errorLogger);
+app.use(errors());
 
 app.use(errorHandler);
 
