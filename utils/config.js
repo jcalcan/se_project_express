@@ -9,8 +9,9 @@ const corsOptions = {
     "https://www.whattowear.mine.bz",
     "https://api.whattowear.mine.bz",
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Origin", "Accept"],
+  exposedHeaders: ["Access-Control-Allow-Origin"],
   credentials: true,
 };
 
