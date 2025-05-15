@@ -7,6 +7,7 @@ const corsOptions = {
     "http://localhost:4173",
     "https://whattowear.mine.bz",
     "https://www.whattowear.mine.bz",
+    "https://api.whattowear.mine.bz",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"],
