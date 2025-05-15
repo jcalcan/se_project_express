@@ -23,6 +23,10 @@ app.use(requestLogger);
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
 
+app.get("/items", (req, res) => {
+  res.json({ message: "CORS fixed!" });
+});
+
 app.get("/crash-test", () => {
   setTimeout(() => {
     throw new Error("Server will crash now");
