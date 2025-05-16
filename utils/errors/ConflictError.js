@@ -7,6 +7,4 @@ class ConflictError extends Error {
     this.name = "ConflictError";
   }
 }
-module.exports = {
-  ConflictError,
-};
+module.exports = ConflictError;
