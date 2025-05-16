@@ -1,6 +1,13 @@
 const { Joi, celebrate } = require("celebrate");
 const validator = require("validator");
 
+const validateURL = (value, helpers) => {
+  if (validator.isURL(value)) {
+    return value;
+  }
+  return helpers.error("string.uri");
+};
+
 function validateClothingItem() {
   return celebrate({
     body: Joi.object().keys({
@@ -13,7 +20,7 @@ function validateClothingItem() {
     query: Joi.object().keys({
       weather: Joi.string().optional(),
       limit: Joi.number().integer().min(1).optional(),
-      page: Joi.number().interger().min(1).optional(),
+      page: Joi.number().integer().min(1).optional(),
     }),
     headers: Joi.object({
       authorization: Joi.string().required(),
@@ -50,22 +57,15 @@ function validateIds() {
     }),
   });
 }
-const validateURL = (value, helpers) => {
-  if (validator.isURL(value)) {
-    return value;
-  }
-  return helpers.error("string.uri");
-};
 
-const validateQuery = () => {
-  return celebrate({
+const validateQuery = () =>
+  celebrate({
     query: Joi.object().keys({
       weather: Joi.string().optional(),
       limit: Joi.number().integer().min(1).optional(),
       page: Joi.number().integer().min(1).optional(),
     }),
   });
-};
 
 module.exports = {
   validateClothingItem,

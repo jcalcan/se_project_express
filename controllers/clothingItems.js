@@ -11,10 +11,13 @@ const {
   INVALID_URL_MESSAGE,
   INVALID_AUTHENTICATION_MESSAGE,
   UnauthorizedError,
+} = require("../utils/errors");
+
+const {
   BadRequestError,
   NotFoundError,
   ForbiddenError,
-} = require("../utils/errors");
+} = require("../utils/errors/index");
 
 const getItems = async (req, res, next) => {
   try {
@@ -50,7 +53,7 @@ const createItem = async (req, res, next) => {
       return next(new BadRequestError(INVALID_URL_MESSAGE));
     }
 
-    next(err);
+    return next(err);
   }
 };
 
@@ -81,7 +84,7 @@ const deleteItem = async (req, res, next) => {
   } catch (err) {
     console.error(err);
 
-    next(err);
+    return next(err);
   }
 };
 
@@ -111,7 +114,7 @@ const likeItem = async (req, res, next) => {
     // return res.status(INTERNAL_SERVER_ERROR).json({
     //   message: DEFAULT_ERROR_MESSAGE,
     // });
-    next(error);
+    return next(error);
   }
 };
 
@@ -133,7 +136,7 @@ const unlikeItem = async (req, res, next) => {
       return next(new NotFoundError(ITEM_NOT_FOUND_MESSAGE));
     }
 
-    next(error);
+    return next(error);
   }
 };
 

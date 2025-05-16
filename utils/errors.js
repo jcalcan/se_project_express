@@ -38,46 +38,6 @@ const DUPLICATE_EMAIL_CONFLICT_MESSAGE = "Email already exists";
 const USER_CREATED = "User Successfully created";
 const USER_UPDATED = "User Successfully Updated";
 
-class BadRequestError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = BAD_REQUEST;
-    this.name = "BadRequestError";
-  }
-}
-
-class UnauthorizedError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = UNAUTHORIZED;
-    this.name = "UnauthorizedError";
-  }
-}
-
-class ForbiddenError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = FORBIDDEN;
-    this.name = "ForbiddenError";
-  }
-}
-
-class NotFoundError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = NOT_FOUND;
-    this.name = "NotFoundError";
-  }
-}
-
-class ConflictError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = CONFLICT;
-    this.name = "ConflictError";
-  }
-}
-
 module.exports = {
   BAD_REQUEST,
   UNAUTHORIZED,
@@ -87,11 +47,6 @@ module.exports = {
   CREATED,
   OK,
   CONFLICT,
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  ConflictError,
   USER_CREATED,
   USER_UPDATED,
   BAD_REQUEST_ERROR_MESSAGE,

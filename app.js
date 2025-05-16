@@ -1,14 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { errors } = require("celebrate");
 const errorHandler = require("./middlewares/error-handler");
-const { requestLogger, errorLogger } = require("./utils/logger");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 require("dotenv").config();
 const { login, createUser } = require("./controllers/users");
 const { corsOptions } = require("./utils/config");
 const { NOT_FOUND_ERROR_MESSAGE, NotFoundError } = require("./utils/errors");
-const { errors } = require("celebrate");
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -36,19 +36,19 @@ app.get("/crash-test", () => {
 app.post("/signin", login);
 app.post("/signup", createUser);
 
-app.use((req, res, next) => {
-  return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
-});
+app.use((req, res, next) => next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE)));
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.log(err);
 
-  if (!err.statusCode) {
+  if (err.statusCode) {
     // Set default status code for unexpected errors
-    err.statusCode = 500;
+    return res
+      .status(err.statusCode)
+      .send({ message: err.message, name: err.name });
   }
-  next(err);
+  return res.status(500).send({ message: "An error occurred on the server" });
 });
 app.use(errorLogger);
 app.use(errors());

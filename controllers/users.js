@@ -14,12 +14,17 @@ const {
   DUPLICATE_EMAIL_CONFLICT_MESSAGE,
   USER_CREATED,
   USER_UPDATED,
-  UnauthorizedError,
-  ConflictError,
+} = require("../utils/errors");
+
+const {
   BadRequestError,
   NotFoundError,
-} = require("../utils/errors");
+  UnauthorizedError,
+  ConflictError,
+} = require("../utils/errors/index");
+
 const { isValidUrl } = require("../utils/validation");
+
 const createUser = async (req, res, next) => {
   try {
     const { name, avatar, email, password } = req.body;
