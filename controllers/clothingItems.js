@@ -16,9 +16,8 @@ const { BadRequestError, NotFoundError } = require("../utils/errors/index");
 
 const getItems = async (req, res, next) => {
   try {
-    console.log("Starting getItems"); // Add this
     const clothes = await ClothingItem.find({});
-    console.log("Found items:", clothes); // Add this
+
     res.status(OK).json({ data: clothes });
   } catch (err) {
     // res.status(INTERNAL_SERVER_ERROR).json({

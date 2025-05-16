@@ -20,6 +20,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 
+app.post("/signin", login);
+app.post("/signup", createUser);
+
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
 
@@ -28,9 +31,6 @@ app.get("/crash-test", () => {
     throw new Error("Server will crash now");
   }, 0);
 });
-
-app.post("/signin", login);
-app.post("/signup", createUser);
 
 app.use((req, res, next) => next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE)));
 
