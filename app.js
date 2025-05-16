@@ -23,10 +23,6 @@ app.use(requestLogger);
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
 
-app.get("/items", (req, res) => {
-  res.json({ message: "CORS fixed!" });
-});
-
 app.get("/crash-test", () => {
   setTimeout(() => {
     throw new Error("Server will crash now");
@@ -60,7 +56,9 @@ mongoose
   .then(() => {
     console.log("Connected to DB");
   })
-  .catch(console.error);
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
 
 app.listen(PORT, () => {
   console.log(`App listening at ${PORT}`);
