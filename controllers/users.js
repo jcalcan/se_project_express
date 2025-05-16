@@ -56,7 +56,10 @@ const createUser = async (req, res, next) => {
 
     return res.status(CREATED).json({ data: user, message: USER_CREATED });
   } catch (err) {
-    return next(new BadRequestError(err.message));
+    if (err.name === "ValidationError") {
+      return next(new BadRequestError(err.message));
+    }
+    return next(err);
   }
 };
 

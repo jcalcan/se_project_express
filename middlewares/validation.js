@@ -11,20 +11,13 @@ const validateURL = (value, helpers) => {
 function validateClothingItem() {
   return celebrate({
     body: Joi.object().keys({
-      itemName: Joi.string().required().min(2).max(30),
+      name: Joi.string().required().min(2).max(30),
       imageUrl: Joi.string().required().custom(validateURL).messages({
         "string.empty": 'The "imageUrl" field must be filled in',
         "string.uri": 'The "imageUrl" field must be a valid url',
       }),
+      weather: Joi.string().valid("hot", "warm", "cold").required(),
     }),
-    query: Joi.object().keys({
-      weather: Joi.string().optional(),
-      limit: Joi.number().integer().min(1).optional(),
-      page: Joi.number().integer().min(1).optional(),
-    }),
-    headers: Joi.object({
-      authorization: Joi.string().required(),
-    }).unknown(true),
   });
 }
 function validateUserInfo() {
@@ -53,19 +46,10 @@ function validateAuthentication() {
 function validateIds() {
   return celebrate({
     params: Joi.object().keys({
-      id: Joi.string().length(24),
+      itemId: Joi.string().length(24),
     }),
   });
 }
-
-const validateQuery = () =>
-  celebrate({
-    query: Joi.object().keys({
-      weather: Joi.string().optional(),
-      limit: Joi.number().integer().min(1).optional(),
-      page: Joi.number().integer().min(1).optional(),
-    }),
-  });
 
 module.exports = {
   validateClothingItem,
@@ -73,5 +57,4 @@ module.exports = {
   validateAuthentication,
   validateIds,
   validateURL,
-  validateQuery,
 };

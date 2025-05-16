@@ -9,15 +9,10 @@ const {
   ITEM_DELETED_MESSAGE,
   AUTHENTICATION_FAIL_MESSAGE,
   INVALID_URL_MESSAGE,
-  INVALID_AUTHENTICATION_MESSAGE,
   UnauthorizedError,
 } = require("../utils/errors");
 
-const {
-  BadRequestError,
-  NotFoundError,
-  ForbiddenError,
-} = require("../utils/errors/index");
+const { BadRequestError, NotFoundError } = require("../utils/errors/index");
 
 const getItems = async (req, res, next) => {
   try {
@@ -64,21 +59,13 @@ const deleteItem = async (req, res, next) => {
       return next(new BadRequestError(BAD_REQUEST_ERROR_MESSAGE));
     }
 
-    // const item = await ClothingItem.findById(itemId);
-    const deletedItem = await ClothingItem.findByIdAndDelete(itemId);
-
-    if (!deletedItem) {
+    const result = await ClothingItem.deleteOne({
+      _id: itemId,
+      owner: req.user._id,
+    });
+    if (result.deletedCount === 0) {
       return next(new NotFoundError(ITEM_NOT_FOUND_MESSAGE));
     }
-
-    if (!deletedItem.owner.equals(req.user._id)) {
-      return next(new ForbiddenError(INVALID_AUTHENTICATION_MESSAGE));
-    }
-
-    // const deletedItem = await ClothingItem.findByIdAndDelete(itemId);
-    // if (!deletedItem) {
-    //   return next(new NotFoundError(ITEM_NOT_FOUND_MESSAGE));
-    // }
     console.log(`Item successfully deleted with ID: ${itemId}`);
     return res.status(OK).json({ message: ITEM_DELETED_MESSAGE });
   } catch (err) {
