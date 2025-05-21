@@ -24,12 +24,10 @@ function validateUserInfo() {
   return celebrate({
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
-      avatar: Joi.string().required().custom(validateURL).messages({
+      avatar: Joi.string().custom(validateURL).messages({
         "string.empty": 'The "avatar" field must be filled in',
         "string.uri": 'The "avatar" field must be a valid url',
       }),
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
     }),
   });
 }
