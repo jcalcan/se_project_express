@@ -36,17 +36,18 @@ app.get("/crash-test", () => {
 app.use((req, res, next) => next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE)));
 
 // eslint-disable-next-line no-unused-vars
-// app.use((err, req, res, next) => {
-//   console.log(err);
+app.use((err, req, res, next) => {
+  console.log(err);
 
-//   if (err.statusCode) {
-//     // Set default status code for unexpected errors
-//     return res
-//       .status(err.statusCode)
-//       .send({ message: err.message, name: err.name });
-//   }
-//   return res.status(500).send({ message: "An error occurred on the server" });
-// });
+  if (err.statusCode) {
+    // Set default status code for unexpected errors
+    return res
+      .status(err.statusCode)
+      .send({ message: err.message, name: err.name });
+  }
+  return res.status(500).send({ message: "An error occurred on the server" });
+});
+
 app.get("/test", (req, res) => {
   res.json({ message: "Test route working" });
 });
