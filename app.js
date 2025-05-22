@@ -8,7 +8,8 @@ const { requestLogger, errorLogger } = require("./middlewares/logger");
 require("dotenv").config();
 const { login, createUser } = require("./controllers/users");
 const { corsOptions } = require("./utils/config");
-const { NOT_FOUND_ERROR_MESSAGE, NotFoundError } = require("./utils/errors");
+const { NOT_FOUND_ERROR_MESSAGE } = require("./utils/errors");
+const { NotFoundError } = require("./utils/errors/NotFoundError");
 
 const { PORT = 3001 } = process.env;
 const app = express();

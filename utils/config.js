@@ -14,6 +14,7 @@ const corsOptions = {
   exposedHeaders: ["Access-Control-Allow-Origin"],
   credentials: true,
   optionsSuccessStatus: 200,
+  preflightContinue: false,
 };
 
 module.exports = { JWT_SECRET, corsOptions };
