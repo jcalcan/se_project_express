@@ -21,7 +21,7 @@ const {
   NotFoundError,
   UnauthorizedError,
   ConflictError,
-} = require("../utils/errors/index");
+} = require("../utils/api_errors/index");
 
 const { isValidUrl } = require("../utils/validation");
 

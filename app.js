@@ -9,7 +9,7 @@ require("dotenv").config();
 const { login, createUser } = require("./controllers/users");
 const { corsOptions } = require("./utils/config");
 const { NOT_FOUND_ERROR_MESSAGE } = require("./utils/errors");
-const { NotFoundError } = require("./utils/errors/NotFoundError");
+const { NotFoundError } = require("./utils/api_errors/index");
 
 const { PORT = 3001 } = process.env;
 const app = express();
@@ -26,12 +26,6 @@ app.post("/signup", createUser);
 
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
-
-app.get("/crash-test", () => {
-  setTimeout(() => {
-    throw new Error("Server will crash now");
-  }, 0);
-});
 
 app.use((req, res, next) => next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE)));
 

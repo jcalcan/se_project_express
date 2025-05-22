@@ -12,7 +12,8 @@ const {
   UnauthorizedError,
 } = require("../utils/errors");
 
-const { BadRequestError, NotFoundError } = require("../utils/errors/index");
+const { BadRequestError, NotFoundError } =
+  require("../utils/api_errors/index").default;
 
 const getItems = async (req, res, next) => {
   try {
@@ -29,13 +30,29 @@ const getItems = async (req, res, next) => {
 
 const createItem = async (req, res, next) => {
   try {
+    console.log("Starting createItem function");
+    console.log("Request body:", req.body);
+
     if (!URL.canParse(req.body.imageUrl)) {
+      console.log("URL validation failed");
       return next(new BadRequestError(INVALID_URL_MESSAGE));
     }
+    console.log("URL validation passed");
 
     if (!req.user) {
+      console.log("User authentication failed");
       return next(new UnauthorizedError(AUTHENTICATION_FAIL_MESSAGE));
     }
+
+    console.log("User authentication passed");
+    console.log("Attempting to create item in database");
+    console.log("Database operation starting with data:", {
+      name: req.body.name,
+      weather: req.body.weather,
+      imageUrl: req.body.imageUrl,
+      owner: req.user._id,
+    });
+
     const item = await ClothingItem.create({
       name: req.body.name,
       weather: req.body.weather,
@@ -43,8 +60,12 @@ const createItem = async (req, res, next) => {
       owner: req.user._id,
     });
 
+    console.log("Item created successfully");
+
     return res.status(CREATED).json(item);
   } catch (err) {
+    console.log("Error occurred:", err);
+
     if (err.name === "ValidationError") {
       return next(new BadRequestError(INVALID_URL_MESSAGE));
     }

@@ -15,6 +15,7 @@ const {
 
 router.get("/", getItems);
 router.post("/", auth, validateClothingItem, createItem);
+// router.post("/", auth, createItem);
 router.delete("/:itemId", auth, validateIds, deleteItem);
 router.put("/:itemId/likes", auth, validateIds, likeItem);
 router.delete("/:itemId/likes", auth, validateIds, unlikeItem);
