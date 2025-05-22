@@ -12,8 +12,7 @@ const {
   UnauthorizedError,
 } = require("../utils/errors");
 
-const { BadRequestError, NotFoundError } =
-  require("../utils/api_errors/index").default;
+const { BadRequestError, NotFoundError } = require("../utils/api_errors/index");
 
 const getItems = async (req, res, next) => {
   try {
