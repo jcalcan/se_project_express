@@ -9,7 +9,6 @@ const validateURL = (value, helpers) => {
 };
 
 function validateClothingItem() {
-  console.log("validateClothingItem: start");
   return celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
