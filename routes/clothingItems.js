@@ -26,15 +26,15 @@ router.post(
     console.log("POST /items: hit validateClothingItem");
     next();
   },
-  validateClothingItem,
+  validateClothingItem(),
   (req, res, next) => {
     console.log("POST /items: hit createItem");
     next();
   },
   createItem
 );
-router.delete("/:itemId", auth, validateIds, deleteItem);
-router.put("/:itemId/likes", auth, validateIds, likeItem);
-router.delete("/:itemId/likes", auth, validateIds, unlikeItem);
+router.delete("/:itemId", auth, validateIds(), deleteItem);
+router.put("/:itemId/likes", auth, validateIds(), likeItem);
+router.delete("/:itemId/likes", auth, validateIds(), unlikeItem);
 
 module.exports = router;
