@@ -4,6 +4,10 @@ const cors = require("cors");
 const { errors } = require("celebrate");
 const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const {
+  validateAuthentication,
+  validateSignup,
+} = require("./middlewares/validation");
 
 require("dotenv").config();
 const { login, createUser } = require("./controllers/users");
@@ -21,26 +25,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 
-app.post("/signin", login);
-app.post("/signup", createUser);
+app.post("/signin", validateAuthentication(), login);
+app.post("/signup", validateSignup(), createUser);
 
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
 
 app.use((req, res, next) => next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE)));
-
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  console.log(err);
-
-  if (err.statusCode) {
-    // Set default status code for unexpected errors
-    return res
-      .status(err.statusCode)
-      .send({ message: err.message, name: err.name });
-  }
-  return res.status(500).send({ message: "An error occurred on the server" });
-});
 
 app.get("/test", (req, res) => {
   res.json({ message: "Test route working" });

@@ -4,13 +4,18 @@ const ClothingItem = require("../models/clothingItem");
 const {
   CREATED,
   OK,
+  FORBIDDEN,
+  BAD_REQUEST,
   BAD_REQUEST_ERROR_MESSAGE,
   ITEM_NOT_FOUND_MESSAGE,
   ITEM_DELETED_MESSAGE,
   AUTHENTICATION_FAIL_MESSAGE,
   INVALID_URL_MESSAGE,
-  UnauthorizedError,
+  INTERNAL_SERVER_ERROR,
+  DEFAULT_ERROR_MESSAGE,
 } = require("../utils/errors");
+const {UnauthorizedError} = require("../utils/api_errors/UnauthorizedError")
+
 
 const { BadRequestError, NotFoundError } = require("../utils/api_errors/index");
 
@@ -60,25 +65,46 @@ const createItem = async (req, res, next) => {
 
 const deleteItem = async (req, res, next) => {
   const { itemId } = req.params;
-  try {
-    if (!ObjectId.isValid(itemId)) {
-      return next(new BadRequestError(BAD_REQUEST_ERROR_MESSAGE));
-    }
+  // try {
+  //   if (!ObjectId.isValid(itemId)) {
+  //     return next(new BadRequestError(BAD_REQUEST_ERROR_MESSAGE));
+  //   }
 
-    const result = await ClothingItem.deleteOne({
-      _id: itemId,
-      owner: req.user._id,
+  //   const result = await ClothingItem.deleteOne({
+  //     _id: itemId,
+  //     owner: req.user._id,
+  //   });
+  //   if (result.deletedCount === 0) {
+  //     return next(new NotFoundError(ITEM_NOT_FOUND_MESSAGE));
+  //   }
+  //   console.log(`Item successfully deleted with ID: ${itemId}`);
+  //   return res.status(OK).json({ message: ITEM_DELETED_MESSAGE });
+  // } catch (err) {
+  //   console.error(err);
+
+  //   return next(err);
+  // }
+
+  ClothingItem.findById(itemId)
+    .orFail()
+    .then((item) => {
+      if (String(item.owner) !== req.user._id) {
+        return res.status(FORBIDDEN).send({ message: FORBIDDEN });
+      }
+      return item
+        .deleteOne()
+        .then(() => res.status(OK).send({ message: ITEM_DELETED_MESSAGE }));
+    })
+    .catch((err) => {
+      console.error(err);
+      if (err.name === "DocumentNotFoundError") {
+        return res.status(NOT_FOUND).send({ message: NOT_FOUND_ERROR_MESSAGE });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({message: BAD_REQUEST_ERROR_MESSAGE});
+      }
+      return res.status(INTERNAL_SERVER_ERROR).send({message: DEFAULT_ERROR_MESSAGE);
     });
-    if (result.deletedCount === 0) {
-      return next(new NotFoundError(ITEM_NOT_FOUND_MESSAGE));
-    }
-    console.log(`Item successfully deleted with ID: ${itemId}`);
-    return res.status(OK).json({ message: ITEM_DELETED_MESSAGE });
-  } catch (err) {
-    console.error(err);
-
-    return next(err);
-  }
 };
 
 const likeItem = async (req, res, next) => {
