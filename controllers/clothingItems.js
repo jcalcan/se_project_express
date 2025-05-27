@@ -5,8 +5,6 @@ const {
   CREATED,
   OK,
   FORBIDDEN,
-  BAD_REQUEST,
-  NOT_FOUND,
   BAD_REQUEST_ERROR_MESSAGE,
   ITEM_NOT_FOUND_MESSAGE,
   ITEM_DELETED_MESSAGE,
@@ -14,11 +12,14 @@ const {
   AUTHENTICATION_FAIL_MESSAGE,
   INVALID_URL_MESSAGE,
   INTERNAL_SERVER_ERROR,
-  DEFAULT_ERROR_MESSAGE,
 } = require("../utils/errors");
-const { UnauthorizedError } = require("../utils/api_errors/UnauthorizedError");
-
-const { BadRequestError, NotFoundError } = require("../utils/api_errors/index");
+const {
+  BadRequestError,
+  NotFoundError,
+  UnauthorizedError,
+  ForbiddenError,
+  InternalServerError,
+} = require("../utils/api_errors/index");
 
 const getItems = async (req, res, next) => {
   try {
@@ -90,7 +91,8 @@ const deleteItem = async (req, res, next) => {
     .orFail()
     .then((item) => {
       if (String(item.owner) !== req.user._id) {
-        return res.status(FORBIDDEN).send({ message: FORBIDDEN });
+        // return res.status(FORBIDDEN).send({ message: FORBIDDEN });
+        return next(new ForbiddenError(FORBIDDEN));
       }
       return item
         .deleteOne()
@@ -99,16 +101,19 @@ const deleteItem = async (req, res, next) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: NOT_FOUND_ERROR_MESSAGE });
+        // return res.status(NOT_FOUND).send({ message: NOT_FOUND_ERROR_MESSAGE });
+        return next(new NotFoundError(NOT_FOUND_ERROR_MESSAGE));
       }
       if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST)
-          .send({ message: BAD_REQUEST_ERROR_MESSAGE });
+        // return res
+        //   .status(BAD_REQUEST)
+        //   .send({ message: BAD_REQUEST_ERROR_MESSAGE });
+        return next(new BadRequestError(BAD_REQUEST_ERROR_MESSAGE));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: DEFAULT_ERROR_MESSAGE });
+      // return res
+      //   .status(INTERNAL_SERVER_ERROR)
+      //   .send({ message: DEFAULT_ERROR_MESSAGE });
+      return next(new InternalServerError(INTERNAL_SERVER_ERROR));
     });
 };
 
