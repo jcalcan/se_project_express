@@ -14,8 +14,7 @@ const {
   INTERNAL_SERVER_ERROR,
   DEFAULT_ERROR_MESSAGE,
 } = require("../utils/errors");
-const {UnauthorizedError} = require("../utils/api_errors/UnauthorizedError")
-
+const { UnauthorizedError } = require("../utils/api_errors/UnauthorizedError");
 
 const { BadRequestError, NotFoundError } = require("../utils/api_errors/index");
 
@@ -101,9 +100,13 @@ const deleteItem = async (req, res, next) => {
         return res.status(NOT_FOUND).send({ message: NOT_FOUND_ERROR_MESSAGE });
       }
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({message: BAD_REQUEST_ERROR_MESSAGE});
+        return res
+          .status(BAD_REQUEST)
+          .send({ message: BAD_REQUEST_ERROR_MESSAGE });
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({message: DEFAULT_ERROR_MESSAGE);
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: DEFAULT_ERROR_MESSAGE });
     });
 };
 

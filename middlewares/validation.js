@@ -2,6 +2,7 @@ const { Joi, celebrate } = require("celebrate");
 const validator = require("validator");
 
 const validateURL = (value, helpers) => {
+  console.log(value);
   if (validator.isURL(value)) {
     return value;
   }
@@ -36,7 +37,7 @@ function validateAuthentication() {
   return celebrate({
     body: Joi.object().keys({
       email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
+      password: Joi.string().required().min(6),
     }),
   });
 }
@@ -53,12 +54,12 @@ function validateSignup() {
   return celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
-      avatar: Joi.string().required().custom(validateURL).messages({
+      avatar: Joi.string().required().uri().messages({
         "string.empty": 'The "avatar" field must be filled in',
         "string.uri": 'The "avatar" field must be a valid url',
       }),
       email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
+      password: Joi.string().required().min(6),
     }),
   });
 }

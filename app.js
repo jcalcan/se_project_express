@@ -26,7 +26,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 
 app.post("/signin", validateAuthentication(), login);
-app.post("/signup", validateSignup(), createUser);
+// app.post("/signup", validateSignup(), createUser);
+app.post("/signup", createUser);
 
 app.use("/users", require("./routes/users"));
 app.use("/items", require("./routes/clothingItems"));
